@@ -1,0 +1,310 @@
+package com.marlib.safecommunicator;
+
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+
+import android.os.Bundle;
+import android.view.View;
+import android.widget.EditText;
+import android.widget.Toast;
+
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.Response;
+import okhttp3.WebSocket;
+import okhttp3.WebSocketListener;
+
+public class ChatActivity extends AppCompatActivity {
+
+    private WebSocket webSocket;
+    private String name = "User";
+    private String server_ip_adress;
+
+    private static final String SET_ENCRYPTING_METHOD = "set_encrypting_method";
+    private static final String SET_SERVER_ENCRYPTING_METHOD = "set_server_encrypting_method";
+    private static final String GET_ENCRYPTING_METHOD = "get_encrypting_method";
+    private static final String GET_CONNECTIONS = "get_connections";
+
+    private int encrypting_method = 0;
+    private String public_key = "1003001030210";
+
+    /* RSA */
+    private String public_exponent = "7";
+    private String prime_factor_a = "5";
+    private String prime_factor_b = "11";
+
+    /* ELGAMAL */
+    private String prime_p = "229";
+    private String alpha = "5";
+    private String number_b = "97";
+    private String factor_g = "6";
+
+    private String server_encrypthing_method = "";
+
+    private String server_path = "ws://";
+    private JSONObject keys;
+    private EditText messageEditText;
+    private View sendButton;
+    private RecyclerView mainChatRecycleView;
+    private MessageAdapter messageAdapter;
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_chat);
+
+        name = getIntent().getStringExtra("name");
+        server_ip_adress = getIntent().getStringExtra("adress");
+        encrypting_method = getIntent().getIntExtra("encrypting", 0);
+
+        initiateSocketConnection();
+    }
+
+    private void initiateSocketConnection() {
+        OkHttpClient client = new OkHttpClient();
+        Request request = new Request.Builder().url(server_path + server_ip_adress).build();
+        webSocket = client.newWebSocket(request, new SocketListener());
+    }
+
+    private class SocketListener extends WebSocketListener {
+        @Override
+        public void onOpen(@NotNull WebSocket webSocket, @NotNull Response response) {
+            super.onOpen(webSocket, response);
+
+            runOnUiThread(() -> {
+                Toast.makeText(ChatActivity.this, "Socket Connection Successful", Toast.LENGTH_SHORT).show();
+
+                initializeView();
+                getServerEncryptingMethod();
+            });
+        }
+
+        @Override
+        public void onFailure(@NotNull WebSocket webSocket, @NotNull Throwable t, @Nullable Response response) {
+            super.onFailure(webSocket, t, response);
+            rejectConnection();
+        }
+
+        @Override
+        public void onClosed(@NotNull WebSocket webSocket, int code, @NotNull String reason) {
+            super.onClosed(webSocket, code, reason);
+            rejectConnection();
+        }
+
+        @Override
+        public void onMessage(@NotNull WebSocket webSocket, @NotNull String text) {
+            super.onMessage(webSocket, text);
+
+            runOnUiThread(() -> {
+                try {
+                    JSONObject jsonObject  = new JSONObject(text);
+                    if(jsonObject.has("task")){
+
+                        String task = jsonObject.getString("task");
+
+                        if(task.equals(GET_ENCRYPTING_METHOD)) {
+                            server_encrypthing_method = jsonObject.getString("encrypting_method");
+                            System.out.println("SERVER_ENCRYPTING_METHOD:"+server_encrypthing_method);
+                            resolveServerKeys();
+
+                        } else if(task.equals(GET_CONNECTIONS)) {
+                            keys = jsonObject;
+                            System.out.println("CONNECTION ADDED");
+                            System.out.println(jsonObject.toString());
+                        }
+
+                    } else {
+                        String deencrypted_message = "";
+
+                        if(encrypting_method==0) {
+                            deencrypted_message = decryptMessageRSA(jsonObject.getString("message"));
+                        } else if(encrypting_method==1) {
+                            deencrypted_message = decryptMessageElGamal(jsonObject.getString("message"));
+                        }
+
+                        jsonObject.put("isSent", false);
+                        jsonObject.put("message", deencrypted_message);
+                        messageAdapter.addItem(jsonObject);
+                        mainChatRecycleView.smoothScrollToPosition(messageAdapter.getItemCount() - 1);
+                    }
+
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+            });
+
+
+        }
+    }
+
+    private void initializeView() {
+        messageEditText = findViewById(R.id.etvMessage);
+        sendButton = findViewById(R.id.btnSend);
+
+        mainChatRecycleView = findViewById(R.id.rvMainChat);
+        messageAdapter = new MessageAdapter(getLayoutInflater());
+        mainChatRecycleView.setAdapter(messageAdapter);
+        mainChatRecycleView.setLayoutManager(new LinearLayoutManager(this));
+
+
+        sendButton.setOnClickListener(v -> {
+            String message = messageEditText.getText().toString();
+            String encrypted_message = "";
+
+            if(encrypting_method==0) {
+                try {
+                    encrypted_message = encryptMessageRSA(message, keys.getString("public_k"), keys.getString("public_e"));
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+            } else if(encrypting_method==1) {
+                try {
+                    encrypted_message = encryptMessageElGamal(message, keys.getString("public_p"), keys.getString("public_b"), keys.getString("public_g"));
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+            }
+
+            if (encrypted_message != "") {
+                JSONObject jsonObject = new JSONObject();
+                try {
+                    jsonObject.put("name", name);
+                    jsonObject.put("message", encrypted_message);
+                    webSocket.send(jsonObject.toString());
+
+                    jsonObject.put("isSent", true);
+                    jsonObject.put("message", message);
+
+                    messageAdapter.addItem(jsonObject);
+                    mainChatRecycleView.smoothScrollToPosition(messageAdapter.getItemCount() - 1);
+                    resetMessageEdit();
+
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+            }
+        });
+    }
+
+    private void resetMessageEdit() {
+        messageEditText.setText("");
+    }
+
+    private void sendPublicKey() {
+        if (encrypting_method == 0) {
+            sendRSAKeys();
+        } else if (encrypting_method == 1) {
+            sendElGamalKeys();
+        }
+    }
+
+    private void sendRSAKeys() {
+        JSONObject jsonObject = new JSONObject();
+        try {
+            jsonObject.put("task", SET_ENCRYPTING_METHOD);
+            jsonObject.put("encrypting_method", Integer.toString(encrypting_method));
+            jsonObject.put("public_k", public_key);
+            jsonObject.put("public_e", public_exponent);
+
+            webSocket.send(jsonObject.toString());
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void sendElGamalKeys() {
+        JSONObject jsonObject = new JSONObject();
+        try {
+            jsonObject.put("task", SET_ENCRYPTING_METHOD);
+            jsonObject.put("encrypting_method", Integer.toString(encrypting_method));
+            jsonObject.put("public_p", prime_p);
+            jsonObject.put("public_b", number_b);
+            jsonObject.put("public_g", factor_g);
+
+            webSocket.send(jsonObject.toString());
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void getServerEncryptingMethod() {
+        JSONObject jsonObject = new JSONObject();
+        try {
+            jsonObject.put("task", GET_ENCRYPTING_METHOD);
+
+            webSocket.send(jsonObject.toString());
+
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void setServerEncryptingMethod() {
+        JSONObject jsonObject = new JSONObject();
+        try {
+            jsonObject.put("task", SET_SERVER_ENCRYPTING_METHOD);
+            jsonObject.put("encrypting_method", Integer.toString(encrypting_method));
+
+            webSocket.send(jsonObject.toString());
+
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void rejectConnection() { // TODO: make better rejection
+        finish();
+    }
+
+    private void resolveServerKeys() {
+        if(server_encrypthing_method.equals("-1")){
+            System.out.println("TEST -1");
+            setServerEncryptingMethod();
+            sendPublicKey();
+
+        } else if(server_encrypthing_method.equals(Integer.toString(encrypting_method))) {
+            System.out.println("TEST GOOD");
+            sendPublicKey();
+
+        } else {
+            System.out.println("TEST ELSE");
+            Toast.makeText(ChatActivity.this, "Wrong Encrypting", Toast.LENGTH_SHORT).show();
+            rejectConnection();
+        }
+    }
+
+    private String messageToASCII(String message) { //TODO: message to ASCII String
+        return message;
+    }
+
+    private String ASCIItoMessage(String message) { //TODO: ASCII String to message
+        return message;
+    }
+
+    private String encryptMessageRSA(String message, String public_key, String public_exponent) { //TODO: encrypting RSA
+        System.out.println("ENCRYPTED RSA");
+        return "ENCRYPTED";
+    }
+
+    private String decryptMessageRSA(String message) { //TODO: decrypting RSA
+        System.out.println("DECRYPTED RSA");
+        return "DECRYPTED";
+    }
+
+    private String encryptMessageElGamal(String message, String public_p, String public_b, String public_g) { //TODO: encrypting ElGamal
+        System.out.println("ENCRYPTED ELGAMAL");
+        return "ENCRYPTED";
+    }
+
+    private String decryptMessageElGamal(String message) { //TODO: deencrypting ElGamal
+        System.out.println("DECRYPTED ELGAMAL");
+        return "DECRYPTED";
+    }
+
+}

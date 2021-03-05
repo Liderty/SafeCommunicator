@@ -1,0 +1,183 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="@color/black"
+    tools:context=".MainActivity">
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:layout_gravity="center"
+        android:text="IP adress"
+        android:textStyle="bold"
+        android:textSize="16sp"
+        android:textColor="@color/white"
+        android:layout_marginLeft="16dp" />
+
+    <EditText
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:layout_marginEnd="16dp"
+        android:layout_marginBottom="4dp"
+        android:hint="Enter Server IP adress..."
+        android:id="@+id/etvIPadress"
+        android:background="@drawable/edittext_design"
+        android:padding="10dp"/>
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:layout_gravity="center"
+        android:text="Chat name"
+        android:textStyle="bold"
+        android:textSize="16sp"
+        android:textColor="@color/white"
+        android:layout_marginLeft="16dp" />
+
+    <EditText
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:layout_marginEnd="16dp"
+        android:layout_marginBottom="4dp"
+        android:hint="Enter your name"
+        android:id="@+id/etvName"
+        android:background="@drawable/edittext_design"
+        android:padding="10dp"/>
+
+    <Button
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="24dp"
+        android:layout_marginEnd="24dp"
+        android:layout_marginBottom="16dp"
+        android:text="Enter Chat"
+        android:textColor="#ffffff"
+        android:background="@drawable/button_design"
+        android:id="@+id/btnEnterChat" />
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:layout_gravity="center"
+        android:text="Encrypting method"
+        android:textStyle="bold"
+        android:textSize="16sp"
+        android:textColor="@color/white"
+        android:layout_marginLeft="16dp" />
+
+    <RadioGroup
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:orientation="horizontal"
+        android:layout_marginLeft="16dp">
+
+        <RadioButton android:id="@+id/radRSA"
+            android:layout_width="0dp"
+            android:checked="true"
+            android:textColor="#ffffff"
+            android:layout_height="wrap_content"
+            android:layout_weight="0.5"
+            android:text="RSA"/>
+
+        <RadioButton android:id="@+id/radElgamal"
+            android:layout_width="0dp"
+            android:textColor="#ffffff"
+            android:layout_height="wrap_content"
+            android:layout_weight="0.5"
+            android:text="ElGamel"/>
+
+    </RadioGroup>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:id="@+id/sectionRSA"
+        android:visibility="visible">
+
+        <EditText
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
+            android:layout_marginEnd="16dp"
+            android:layout_marginBottom="4dp"
+            android:hint="First prime factor"
+            android:id="@+id/etvFirstPrime"
+            android:background="@drawable/edittext_design"
+            android:padding="10dp"/>
+
+        <EditText
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
+            android:layout_marginEnd="16dp"
+            android:layout_marginBottom="4dp"
+            android:hint="Second prime factor"
+            android:id="@+id/etvSecondPrime"
+            android:background="@drawable/edittext_design"
+            android:padding="10dp"/>
+
+        <EditText
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
+            android:layout_marginEnd="16dp"
+            android:layout_marginBottom="4dp"
+            android:hint="Public exponent"
+            android:id="@+id/etvPublicExponent"
+            android:background="@drawable/edittext_design"
+            android:padding="10dp"/>
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:id="@+id/sectionElGamal"
+        android:visibility="gone">
+
+        <EditText
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
+            android:layout_marginEnd="16dp"
+            android:layout_marginBottom="4dp"
+            android:hint="Prime P"
+            android:id="@+id/etvPrimeP"
+            android:background="@drawable/edittext_design"
+            android:padding="10dp"/>
+
+        <EditText
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
+            android:layout_marginEnd="16dp"
+            android:layout_marginBottom="4dp"
+            android:hint="Alpha"
+            android:id="@+id/etvAlpha"
+            android:background="@drawable/edittext_design"
+            android:padding="10dp"/>
+
+        <EditText
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
+            android:layout_marginEnd="16dp"
+            android:layout_marginBottom="4dp"
+            android:hint="Factor G"
+            android:id="@+id/etvFactorG"
+            android:background="@drawable/edittext_design"
+            android:padding="10dp"/>
+    </LinearLayout>
+</LinearLayout>
