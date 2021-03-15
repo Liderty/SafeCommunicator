@@ -32,23 +32,26 @@ public class ChatActivity extends AppCompatActivity {
     private static final String GET_CONNECTIONS = "get_connections";
 
     private int encrypting_method = 0;
-    private String public_key = "1003001030210";
 
     /* RSA */
-    private String public_exponent = "7";
-    private String prime_factor_a = "5";
-    private String prime_factor_b = "11";
+    private String public_exponent = "";
+    private String prime_factor_a = "";
+    private String prime_factor_b = "";
+    private String public_key = "";
 
     /* ELGAMAL */
-    private String prime_p = "229";
-    private String alpha = "5";
-    private String number_b = "97";
-    private String factor_g = "6";
+    private String prime_p = "";
+    private String alpha = "";
+    private String factor_g = "";
+    private String number_b = "";
 
+    /* SERVER SIDE */
     private String server_encrypthing_method = "";
 
-    private String server_path = "ws://";
+    /* OTHER KEYS */
     private JSONObject keys;
+
+    private String server_path = "ws://";
     private EditText messageEditText;
     private View sendButton;
     private RecyclerView mainChatRecycleView;
@@ -62,6 +65,21 @@ public class ChatActivity extends AppCompatActivity {
         name = getIntent().getStringExtra("name");
         server_ip_adress = getIntent().getStringExtra("adress");
         encrypting_method = getIntent().getIntExtra("encrypting", 0);
+
+        if(encrypting_method==0) {
+            prime_factor_a = getIntent().getStringExtra("first_prime");
+            prime_factor_b = getIntent().getStringExtra("second_prime");
+            public_exponent = getIntent().getStringExtra("exponent");
+
+            public_key = getPublicKey(prime_factor_a, prime_factor_b, public_exponent);
+
+        } else if (encrypting_method==1) {
+            prime_p = getIntent().getStringExtra("prime_p");
+            alpha = getIntent().getStringExtra("alpha");
+            factor_g = getIntent().getStringExtra("factor_g");
+
+            number_b = getPublicKeyB(prime_p, alpha, factor_g);
+        }
 
         initiateSocketConnection();
     }
@@ -115,6 +133,7 @@ public class ChatActivity extends AppCompatActivity {
 
                         } else if(task.equals(GET_CONNECTIONS)) {
                             keys = jsonObject;
+                            System.out.println(keys.toString());
                             System.out.println("CONNECTION ADDED");
                             System.out.println(jsonObject.toString());
                         }
@@ -157,37 +176,42 @@ public class ChatActivity extends AppCompatActivity {
             String message = messageEditText.getText().toString();
             String encrypted_message = "";
 
-            if(encrypting_method==0) {
-                try {
-                    encrypted_message = encryptMessageRSA(message, keys.getString("public_k"), keys.getString("public_e"));
-                } catch (JSONException e) {
-                    e.printStackTrace();
+            if(keys != null) {
+                System.out.println("KLUCZE " + keys.toString());
+                if(encrypting_method==0) {
+                    try {
+                        encrypted_message = encryptMessageRSA(message, keys.getString("public_key"), keys.getString("public_exponent"));
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+                } else if(encrypting_method==1) {
+                    try {
+                        encrypted_message = encryptMessageElGamal(message, keys.getString("public_p"), keys.getString("public_b"), keys.getString("public_g"));
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
                 }
-            } else if(encrypting_method==1) {
-                try {
-                    encrypted_message = encryptMessageElGamal(message, keys.getString("public_p"), keys.getString("public_b"), keys.getString("public_g"));
-                } catch (JSONException e) {
-                    e.printStackTrace();
+
+                if (encrypted_message != "") {
+                    JSONObject jsonObject = new JSONObject();
+                    try {
+                        jsonObject.put("name", name);
+                        jsonObject.put("message", message);
+                        webSocket.send(jsonObject.toString());
+
+                        jsonObject.put("isSent", true);
+                        jsonObject.put("message", encrypted_message);
+
+                        messageAdapter.addItem(jsonObject);
+                        mainChatRecycleView.smoothScrollToPosition(messageAdapter.getItemCount() - 1);
+                        resetMessageEdit();
+
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
                 }
-            }
-
-            if (encrypted_message != "") {
-                JSONObject jsonObject = new JSONObject();
-                try {
-                    jsonObject.put("name", name);
-                    jsonObject.put("message", encrypted_message);
-                    webSocket.send(jsonObject.toString());
-
-                    jsonObject.put("isSent", true);
-                    jsonObject.put("message", message);
-
-                    messageAdapter.addItem(jsonObject);
-                    mainChatRecycleView.smoothScrollToPosition(messageAdapter.getItemCount() - 1);
-                    resetMessageEdit();
-
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                }
+            } else {
+                Toast.makeText(ChatActivity.this, "NULL", Toast.LENGTH_SHORT).show();
             }
         });
     }
@@ -209,8 +233,8 @@ public class ChatActivity extends AppCompatActivity {
         try {
             jsonObject.put("task", SET_ENCRYPTING_METHOD);
             jsonObject.put("encrypting_method", Integer.toString(encrypting_method));
-            jsonObject.put("public_k", public_key);
-            jsonObject.put("public_e", public_exponent);
+            jsonObject.put("public_key", public_key);
+            jsonObject.put("public_exponent", public_exponent);
 
             webSocket.send(jsonObject.toString());
         } catch (JSONException e) {
@@ -264,16 +288,13 @@ public class ChatActivity extends AppCompatActivity {
 
     private void resolveServerKeys() {
         if(server_encrypthing_method.equals("-1")){
-            System.out.println("TEST -1");
             setServerEncryptingMethod();
             sendPublicKey();
 
         } else if(server_encrypthing_method.equals(Integer.toString(encrypting_method))) {
-            System.out.println("TEST GOOD");
             sendPublicKey();
 
         } else {
-            System.out.println("TEST ELSE");
             Toast.makeText(ChatActivity.this, "Wrong Encrypting", Toast.LENGTH_SHORT).show();
             rejectConnection();
         }
@@ -287,24 +308,28 @@ public class ChatActivity extends AppCompatActivity {
         return message;
     }
 
+    private String getPublicKey(String first_prime, String second_prime, String exponent) { //TODO: calculate RSA public key
+        return first_prime + second_prime + exponent;
+    }
+
+    private String getPublicKeyB(String prime_p, String alpha, String factor_g) { //TODO: calculate ElGamal public B number
+        return prime_p + alpha + factor_g;
+    }
+
     private String encryptMessageRSA(String message, String public_key, String public_exponent) { //TODO: encrypting RSA
-        System.out.println("ENCRYPTED RSA");
-        return "ENCRYPTED";
+        return "RSA " +message+ " ENCRYPTED ";
     }
 
     private String decryptMessageRSA(String message) { //TODO: decrypting RSA
-        System.out.println("DECRYPTED RSA");
-        return "DECRYPTED";
+        return message + " DECRYPTED";
     }
 
     private String encryptMessageElGamal(String message, String public_p, String public_b, String public_g) { //TODO: encrypting ElGamal
-        System.out.println("ENCRYPTED ELGAMAL");
-        return "ENCRYPTED";
+        return "ELGAMAL " +message+ " ENCRYPTED ";
     }
 
     private String decryptMessageElGamal(String message) { //TODO: deencrypting ElGamal
-        System.out.println("DECRYPTED ELGAMAL");
-        return "DECRYPTED";
+        return message + " DECRYPTED";
     }
 
 }

@@ -43,8 +43,9 @@ webSocketServer.on('request', (req) => {
 
                 } else if (jsonObject.task == SET_ENCRYPTING_METHOD) {
                     console.log('in< Set_encrypting_method')
-                    saveKeys(jsonObject, connection);
-
+                    saveKeys(jsonObject, connection)
+                    resendKeys()
+                    
                 } else if (jsonObject.task == SET_SERVER_ENCRYPTING_METHOD) {
                     console.log('in< Set_server_encrypting_method')
                     setEncryptingMethod(jsonObject.encrypting_method)
@@ -81,11 +82,10 @@ function clearConnectionData(connection) {
         }    
     }
     console.log('own| Removed connection')
-
 }
 
 function saveKeys(jsonObject, connection) {
-    console.log('own| Saveing Encrypting')
+
     connections_data.forEach(connection_dict => {
         if (connection_dict['connection'] == connection) {
             if(server_encrypting_method == '-1') {
@@ -93,12 +93,12 @@ function saveKeys(jsonObject, connection) {
             }
 
             if(jsonObject.encrypting_method == '0') {
-                console.log('   public_key: '+jsonObject.public_k)
-                console.log('   public_exponent: '+jsonObject.public_e)
+                console.log('   public_key: '+jsonObject.public_key)
+                console.log('   public_exponent: '+jsonObject.public_exponent)
         
                 connection_dict.encrypting_method = jsonObject.encrypting_method
-                connection_dict.public_key = jsonObject.public_k
-                connection_dict.public_exponent = jsonObject.public_e
+                connection_dict.public_key = jsonObject.public_key
+                connection_dict.public_exponent = jsonObject.public_exponent
         
             } else if(jsonObject.encrypting_method == '1') {
                 console.log('   public_p: '+jsonObject.public_p)
@@ -106,11 +106,12 @@ function saveKeys(jsonObject, connection) {
                 console.log('   public_g: '+jsonObject.public_g)
         
                 connection_dict.encrypting_method = jsonObject.encrypting_method
-                connection_dict.public_p = jsonObject.public_k
-                connection_dict.public_b = jsonObject.public_e
+                connection_dict.public_p = jsonObject.public_p
+                connection_dict.public_b = jsonObject.public_b
                 connection_dict.public_g = jsonObject.public_g
             }
         }
+        console.log('own| Saveing Encrypting')
     })
 }
 
@@ -161,16 +162,15 @@ function sendKeys(connection) {
             
             if(connection_dict.encrypting_method == "0") {
                 keysDict = {task: GET_CONNECTIONS, encrypting_method: connection_dict.encrypting_method,
-                     public_k: connection_dict.public_key, public_e: connection_dict.public_exponent}
+                    public_key: connection_dict.public_key, public_exponent: connection_dict.public_exponent}
             } else {
                 keysDict = {task: GET_CONNECTIONS, encrypting_method: connection_dict.encrypting_method,
                     public_p: connection_dict.public_p, public_b: connection_dict.public_b, public_g: connection_dict.public_g}
             }
 
             var jsonObject = JSON.stringify(keysDict)
-            console.log('out> Sending Keys and Connections')
             connection.sendUTF(jsonObject);
-            console.log('   DONE')
+            console.log('out> Sending Keys and Connections')
         }
     })
 }
