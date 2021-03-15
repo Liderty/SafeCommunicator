@@ -73,9 +73,9 @@ public class MainActivity extends AppCompatActivity {
                         intent.putExtra("name", enterNameEditText.getText().toString());
                         intent.putExtra("adress", serverAdressEditText.getText().toString());
                         intent.putExtra("encrypting", encryptingId);
-                        intent.putExtra("first_prime", Long.parseLong(firstPrimeEditText.getText().toString()));
-                        intent.putExtra("second_prime", Long.parseLong(secondPrimeEditText.getText().toString()));
-                        intent.putExtra("exponent", Long.parseLong(publicExponentEditText.getText().toString()));
+                        intent.putExtra("first_prime", firstPrimeEditText.getText().toString());
+                        intent.putExtra("second_prime", secondPrimeEditText.getText().toString());
+                        intent.putExtra("exponent", publicExponentEditText.getText().toString());
                         startActivity(intent);
                     } else {
                         Toast.makeText(this, "Empty fields!", Toast.LENGTH_SHORT).show();
@@ -86,9 +86,9 @@ public class MainActivity extends AppCompatActivity {
                         intent.putExtra("name", enterNameEditText.getText().toString());
                         intent.putExtra("adress", serverAdressEditText.getText().toString());
                         intent.putExtra("encrypting", encryptingId);
-                        intent.putExtra("prime_p", Long.parseLong(primePEditText.getText().toString()));
-                        intent.putExtra("alpha", Long.parseLong(alphaEditText.getText().toString()));
-                        intent.putExtra("factor_g", Long.parseLong(factorGEditText.getText().toString()));
+                        intent.putExtra("prime_p", primePEditText.getText().toString());
+                        intent.putExtra("alpha", alphaEditText.getText().toString());
+                        intent.putExtra("factor_g", factorGEditText.getText().toString());
                         startActivity(intent);
                     } else {
                         Toast.makeText(this, "Empty fields!", Toast.LENGTH_SHORT).show();
