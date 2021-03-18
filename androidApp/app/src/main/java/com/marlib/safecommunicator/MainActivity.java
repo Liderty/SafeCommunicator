@@ -62,7 +62,11 @@ public class MainActivity extends AppCompatActivity {
 
         serverAdressEditText.setText(DEFAULT_IP_ADRESS);
 
-
+        StringUtils converter = new StringUtils();
+        String converted = converter.convertToAsciiString("Ziemniaki i inne dziwy!");
+        System.out.println(converted);
+        String reconverted = converter.convertAsciiStringToString(converted);
+        System.out.println(reconverted);
 
         enterChatButton.setOnClickListener(v -> {
             Intent intent = new Intent(this, ChatActivity.class);
