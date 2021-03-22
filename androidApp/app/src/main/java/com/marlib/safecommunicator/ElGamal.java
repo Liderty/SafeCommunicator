@@ -1,50 +1,47 @@
 package com.marlib.safecommunicator;
 
-import java.math.BigDecimal;
 import java.math.BigInteger;
-import java.math.RoundingMode;
+import java.util.Random;
 
 public class ElGamal {
     private BigInteger p;
     private Integer alpha;
     private BigInteger g;
     private BigInteger b;
+    private Integer k;
 
     public ElGamal(String p, String alpha, String g) {
         this.p = new BigInteger(p);
         this.alpha = new Integer(alpha);
         this.g = new BigInteger(g);
-
-        calculateB();
+        setB();
+        setPrimeK();
     }
 
-    private void calculateB () {
+    private void setB () {
         this.b = g.pow(alpha).mod(p);
     }
 
-    private BigInteger calculateC1 (Integer k) {
+    public void setPrimeK() {
+        Random rand = new Random();
+
+        int coprime = rand.nextInt();
+        while (!CalcUtils.isCoprime(coprime, p.intValue()-1)) {
+            coprime = rand.nextInt();
+        }
+        this.k = coprime;
+    }
+
+    private BigInteger getC1 (Integer k) {
         return g.pow(k).mod(p);
     }
 
-    private BigInteger calculateC2 (BigInteger sign, Integer k) {
+    private BigInteger getC2 (BigInteger sign, Integer k) {
         return (sign.multiply(b.pow(k))).mod(p);
     }
 
     public BigInteger getB() {
         return this.b;
-    }
-
-    public Integer getPrimeK() { //TODO: return prime
-        return 127;
-    }
-
-    private int GCD(int a, int b)
-    {
-        if (a != b) {
-            return GCD(a>b ? (a - b) : a, b>a ? (b - a) : b);
-        }
-
-        return a;
     }
 
     public String encrypt(String asciiMessage) {
@@ -61,9 +58,8 @@ public class ElGamal {
     private String encryptSign(String sign){
         BigInteger bigIntegerSign = new BigInteger(sign);
 
-        Integer k = getPrimeK();
-        BigInteger c1 = calculateC1(k);
-        BigInteger c2 = calculateC2(bigIntegerSign, k);
+        BigInteger c1 = getC1(k);
+        BigInteger c2 = getC2(bigIntegerSign, k);
 
         return c1.toString() + " " + c2.toString();
     }
@@ -80,15 +76,9 @@ public class ElGamal {
     }
 
     private String decryptSign(BigInteger c1, BigInteger c2){
-        System.out.println("DECRYPTING: "+c1+" "+c2);
-        BigDecimal insideInsider = new BigDecimal(c1.pow(alpha));
-        System.out.println(insideInsider);
-
-        BigDecimal insider = BigDecimal.valueOf(1).divide(insideInsider, RoundingMode.CEILING);
-        System.out.println("INSIDE: "+insider);
-
-        BigDecimal decryptedSign = new BigDecimal(c2).multiply(insider).remainder(new BigDecimal(p));
-        System.out.println("DECRYPTED VALUE: "+decryptedSign);
+        int c1Power = p.intValue() - 1 - alpha.intValue();
+        BigInteger fi = c1.pow(c1Power);
+        BigInteger decryptedSign = fi.multiply(c2).remainder(p);
 
         return decryptedSign.toString();
     }
