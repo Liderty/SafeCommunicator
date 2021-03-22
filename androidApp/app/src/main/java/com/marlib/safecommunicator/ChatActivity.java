@@ -57,6 +57,8 @@ public class ChatActivity extends AppCompatActivity {
     private RecyclerView mainChatRecycleView;
     private MessageAdapter messageAdapter;
 
+    private ElGamal elGamal;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -80,6 +82,8 @@ public class ChatActivity extends AppCompatActivity {
 
             number_b = getPublicKeyB(prime_p, alpha, factor_g);
         }
+
+
 
         initiateSocketConnection();
     }
@@ -300,12 +304,12 @@ public class ChatActivity extends AppCompatActivity {
         }
     }
 
-    private String messageToASCII(String message) { //TODO: message to ASCII String
-        return message;
+    private String StringToASCII(String message) {
+        return StringUtils.convertToAsciiString(message);
     }
 
-    private String ASCIItoMessage(String message) { //TODO: ASCII String to message
-        return message;
+    private String ASCIItoString(String message) {
+        return StringUtils.convertAsciiStringToString(message);
     }
 
     private String getPublicKey(String first_prime, String second_prime, String exponent) { //TODO: calculate RSA public key
@@ -313,7 +317,18 @@ public class ChatActivity extends AppCompatActivity {
     }
 
     private String getPublicKeyB(String prime_p, String alpha, String factor_g) { //TODO: calculate ElGamal public B number
-        return prime_p + alpha + factor_g;
+        elGamal = new ElGamal(prime_p, alpha, factor_g);
+        String message = StringToASCII("Test jakiejs wiadomosci");
+        System.out.println("MGS: "+message);
+
+        String encrypted = elGamal.encrypt(message);
+        System.out.println("ENCRYPTED: "+encrypted);
+
+        String decrypted = elGamal.decrypt(encrypted);
+        System.out.println("DECRYPTED: "+decrypted);
+
+        System.out.println("DECRYPTED MSG: "+ASCIItoString(decrypted));
+        return elGamal.getB().toString();
     }
 
     private String encryptMessageRSA(String message, String public_key, String public_exponent) { //TODO: encrypting RSA

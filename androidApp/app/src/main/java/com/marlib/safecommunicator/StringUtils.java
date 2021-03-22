@@ -1,8 +1,12 @@
 package com.marlib.safecommunicator;
 
-public class StringUtils {
+public final class StringUtils {
 
-    public String convertToAsciiString(String stringToConvert) {
+    private StringUtils() {
+        throw new UnsupportedOperationException();
+    }
+
+    public static String convertToAsciiString(String stringToConvert) {
         String outputAsciiString = "";
 
         for(char sign: stringToConvert.toCharArray()) {
@@ -13,7 +17,7 @@ public class StringUtils {
         return  outputAsciiString;
     }
 
-    public String convertAsciiStringToString(String asciiString) {
+    public static String convertAsciiStringToString(String asciiString) {
         String[] splitedString = asciiString.split("\\s+");
         String outputString = "";
 

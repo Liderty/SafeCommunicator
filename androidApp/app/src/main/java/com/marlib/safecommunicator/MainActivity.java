@@ -61,12 +61,10 @@ public class MainActivity extends AppCompatActivity {
         factorGEditText = findViewById(R.id.etvFactorG);
 
         serverAdressEditText.setText(DEFAULT_IP_ADRESS);
-
-        StringUtils converter = new StringUtils();
-        String converted = converter.convertToAsciiString("Ziemniaki i inne dziwy!");
-        System.out.println(converted);
-        String reconverted = converter.convertAsciiStringToString(converted);
-        System.out.println(reconverted);
+        enterNameEditText.setText("testname");
+        primePEditText.setText("229");
+        alphaEditText.setText("70");
+        factorGEditText.setText("6");
 
         enterChatButton.setOnClickListener(v -> {
             Intent intent = new Intent(this, ChatActivity.class);
