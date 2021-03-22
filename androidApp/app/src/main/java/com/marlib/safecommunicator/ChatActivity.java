@@ -76,14 +76,17 @@ public class ChatActivity extends AppCompatActivity {
             public_key = getPublicKey(prime_factor_a, prime_factor_b, public_exponent);
 
         } else if (encrypting_method==1) {
-            prime_p = getIntent().getStringExtra("prime_p");
-            alpha = getIntent().getStringExtra("alpha");
-            factor_g = getIntent().getStringExtra("factor_g");
-
+            if(!name.equals("testname2")) {
+                prime_p = getIntent().getStringExtra("prime_p");
+                alpha = getIntent().getStringExtra("alpha");
+                factor_g = getIntent().getStringExtra("factor_g");
+            } else {
+                prime_p = "2357";
+                alpha = "1751";
+                factor_g = "2";
+            }
             number_b = getPublicKeyB(prime_p, alpha, factor_g);
         }
-
-
 
         initiateSocketConnection();
     }
@@ -201,13 +204,12 @@ public class ChatActivity extends AppCompatActivity {
                     try {
                         jsonObject.put("name", name);
                         jsonObject.put("message", message);
-                        webSocket.send(jsonObject.toString());
-
                         jsonObject.put("isSent", true);
-                        jsonObject.put("message", encrypted_message);
-
                         messageAdapter.addItem(jsonObject);
                         mainChatRecycleView.smoothScrollToPosition(messageAdapter.getItemCount() - 1);
+                        jsonObject.put("message", encrypted_message);
+                        webSocket.send(jsonObject.toString());
+
                         resetMessageEdit();
 
                     } catch (JSONException e) {
@@ -316,35 +318,25 @@ public class ChatActivity extends AppCompatActivity {
         return first_prime + second_prime + exponent;
     }
 
-    private String getPublicKeyB(String prime_p, String alpha, String factor_g) { //TODO: calculate ElGamal public B number
+    private String getPublicKeyB(String prime_p, String alpha, String factor_g) {
         elGamal = new ElGamal(prime_p, alpha, factor_g);
-        String message = StringToASCII("Test jakiejs wiadomosci");
-        System.out.println("MGS: "+message);
-
-        String encrypted = elGamal.encrypt(message);
-        System.out.println("ENCRYPTED: "+encrypted);
-
-        String decrypted = elGamal.decrypt(encrypted);
-        System.out.println("DECRYPTED: "+decrypted);
-
-        System.out.println("DECRYPTED MSG: "+ASCIItoString(decrypted));
         return elGamal.getB().toString();
     }
 
     private String encryptMessageRSA(String message, String public_key, String public_exponent) { //TODO: encrypting RSA
-        return "RSA " +message+ " ENCRYPTED ";
+        return "none";
     }
 
     private String decryptMessageRSA(String message) { //TODO: decrypting RSA
-        return message + " DECRYPTED";
+        return "none";
     }
 
-    private String encryptMessageElGamal(String message, String public_p, String public_b, String public_g) { //TODO: encrypting ElGamal
-        return "ELGAMAL " +message+ " ENCRYPTED ";
+    private String encryptMessageElGamal(String message, String public_p, String public_b, String public_g) {
+        return elGamal.encrypt(StringToASCII(message), public_p, public_b, public_g);
     }
 
-    private String decryptMessageElGamal(String message) { //TODO: deencrypting ElGamal
-        return message + " DECRYPTED";
+    private String decryptMessageElGamal(String encryptedMessage) {
+        String decrypted = elGamal.decrypt(encryptedMessage);
+        return ASCIItoString(decrypted);
     }
-
 }

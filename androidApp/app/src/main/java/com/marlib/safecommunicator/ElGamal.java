@@ -4,79 +4,84 @@ import java.math.BigInteger;
 import java.util.Random;
 
 public class ElGamal {
-    private BigInteger p;
-    private Integer alpha;
-    private BigInteger g;
+    private final BigInteger p;
+    private final Integer alpha;
+    private final BigInteger g;
     private BigInteger b;
-    private Integer k;
 
     public ElGamal(String p, String alpha, String g) {
         this.p = new BigInteger(p);
-        this.alpha = new Integer(alpha);
+        this.alpha = Integer.valueOf(alpha);
         this.g = new BigInteger(g);
         setB();
-        setPrimeK();
     }
 
     private void setB () {
         this.b = g.pow(alpha).mod(p);
     }
 
-    public void setPrimeK() {
+    public int getCoprimeK(int public_p) {
         Random rand = new Random();
 
-        int coprime = rand.nextInt();
-        while (!CalcUtils.isCoprime(coprime, p.intValue()-1)) {
-            coprime = rand.nextInt();
+        int coprime = rand.nextInt(200);
+        System.out.println("CO: "+coprime);
+        while (!CalcUtils.isCoprime(coprime, public_p-1)) {
+            System.out.println("CO: "+coprime);
+            coprime = rand.nextInt(200);
         }
-        this.k = coprime;
+        return coprime;
     }
 
-    private BigInteger getC1 (Integer k) {
-        return g.pow(k).mod(p);
+    private BigInteger getC1(int k,  BigInteger public_g, BigInteger public_p) {
+        return public_g.pow(k).mod(public_p);
     }
 
-    private BigInteger getC2 (BigInteger sign, Integer k) {
-        return (sign.multiply(b.pow(k))).mod(p);
+    private BigInteger getC2(BigInteger sign, int k, BigInteger public_p, BigInteger public_b) {
+        return (sign.multiply(public_b.pow(k))).mod(public_p);
     }
 
     public BigInteger getB() {
         return this.b;
     }
 
-    public String encrypt(String asciiMessage) {
+    public String encrypt(String asciiMessage, String strPublic_p, String strPublic_b, String strPublic_g) {
         String[] splitedString = asciiMessage.split("\\s+");
-        String encryptedMessage = "";
+        StringBuilder encryptedMessage = new StringBuilder();
+
+        BigInteger public_p  = new BigInteger(strPublic_p);
+        BigInteger public_b  = new BigInteger(strPublic_b);
+        BigInteger public_g  = new BigInteger(strPublic_g);
 
         for(String sign: splitedString) {
-            encryptedMessage += encryptSign(sign) + " ";
+            encryptedMessage.append(encryptSign(sign, public_p, public_b, public_g)).append(" ");
         }
 
-        return encryptedMessage;
+        return encryptedMessage.toString();
     }
 
-    private String encryptSign(String sign){
+    private String encryptSign(String sign, BigInteger public_p, BigInteger public_b, BigInteger public_g){
         BigInteger bigIntegerSign = new BigInteger(sign);
+        int k = getCoprimeK(public_p.intValue());
 
-        BigInteger c1 = getC1(k);
-        BigInteger c2 = getC2(bigIntegerSign, k);
+        BigInteger c1 = getC1(k, public_g, public_p);
+        BigInteger c2 = getC2(bigIntegerSign, k, public_p, public_b);
 
         return c1.toString() + " " + c2.toString();
     }
 
     public String decrypt(String asciiMessage) {
         String[] splitedString = asciiMessage.split("\\s+");
-        String decryptedMessage = "";
+        StringBuilder decryptedMessage = new StringBuilder();
 
         for(int i=0; i<splitedString.length; i+=2) {
-            decryptedMessage += decryptSign(new BigInteger(splitedString[i]), new BigInteger(splitedString[i+1])) + " ";
+            decryptedMessage.append(decryptSign(new BigInteger(splitedString[i]), new BigInteger(splitedString[i + 1]))).append(" ");
         }
 
-        return decryptedMessage;
+        return decryptedMessage.toString();
     }
 
     private String decryptSign(BigInteger c1, BigInteger c2){
-        int c1Power = p.intValue() - 1 - alpha.intValue();
+        int c1Power = p.intValue() - 1 - alpha;
         BigInteger fi = c1.pow(c1Power);
         BigInteger decryptedSign = fi.multiply(c2).remainder(p);
 
