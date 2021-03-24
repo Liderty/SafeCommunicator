@@ -94,11 +94,9 @@ function saveKeys(jsonObject, connection) {
 
             if(jsonObject.encrypting_method == '0') {
                 console.log('   public_key: '+jsonObject.public_key)
-                console.log('   public_exponent: '+jsonObject.public_exponent)
         
                 connection_dict.encrypting_method = jsonObject.encrypting_method
                 connection_dict.public_key = jsonObject.public_key
-                connection_dict.public_exponent = jsonObject.public_exponent
         
             } else if(jsonObject.encrypting_method == '1') {
                 console.log('   public_p: '+jsonObject.public_p)
@@ -123,7 +121,6 @@ function printValues() {
         console.log("   "+connection_dict.encrypting_method)
         if(connection_dict.encrypting_method == "0") {
             console.log("   "+connection_dict.public_key)
-            console.log("   "+connection_dict.public_exponent)
         } else {
             console.log('   public_p: '+connection_dict.public_p)
             console.log('   public_b: '+connection_dict.public_b)
@@ -162,7 +159,7 @@ function sendKeys(connection) {
             
             if(connection_dict.encrypting_method == "0") {
                 keysDict = {task: GET_CONNECTIONS, encrypting_method: connection_dict.encrypting_method,
-                    public_key: connection_dict.public_key, public_exponent: connection_dict.public_exponent}
+                    public_key: connection_dict.public_key}
             } else {
                 keysDict = {task: GET_CONNECTIONS, encrypting_method: connection_dict.encrypting_method,
                     public_p: connection_dict.public_p, public_b: connection_dict.public_b, public_g: connection_dict.public_g}

@@ -40,7 +40,6 @@ public class ChatActivity extends AppCompatActivity {
     private int encrypting_method = 0;
 
     /* RSA */
-    private String public_exponent = ""; //todo : do usunięcia, potrzebuje tylko 2 pola na klucz
     private String prime_factor_a = "";
     private String prime_factor_b = "";
     private String public_key = "";
@@ -80,17 +79,16 @@ public class ChatActivity extends AppCompatActivity {
         if(encrypting_method==0) {
             prime_factor_a = getIntent().getStringExtra("first_prime");
             prime_factor_b = getIntent().getStringExtra("second_prime");
-            public_exponent = getIntent().getStringExtra("exponent");
-            rsa = new RSA( prime_factor_a, prime_factor_b );
+            rsa = new RSA(prime_factor_a, prime_factor_b);
             String public_private_key_ = rsa.getPublicKey();
-            if( public_private_key_ != "ErrorRSA" ) {
+
+            if(public_private_key_ != "ErrorRSA") {
                 String[] public_private_key = public_private_key_.split(";");
                 public_key = public_private_key[0] + ";" + public_private_key[1] + ";" + public_private_key[ 2 ];
-
-            }
-            else {
+            } else {
                 System.out.println("error creating keys");
             }
+
         } else if (encrypting_method==1) {
             if(!name.equals("testname2")) {
                 prime_p = getIntent().getStringExtra("prime_p");
@@ -261,16 +259,13 @@ public class ChatActivity extends AppCompatActivity {
             jsonObject.put("task", SET_ENCRYPTING_METHOD);
             jsonObject.put("encrypting_method", Integer.toString(encrypting_method));
             jsonObject.put("public_key", public_key);
-            jsonObject.put("public_exponent", public_exponent);
 
             webSocket.send(jsonObject.toString());
         } catch (JSONException e) {
             e.printStackTrace();
         }
     }
-    private String getPublicKeyB(String prime_p, String alpha, String factor_g) { //TODO: calculate ElGamal public B number
-        return prime_p + alpha + factor_g;
-    }
+
     private void sendElGamalKeys() {
         JSONObject jsonObject = new JSONObject();
         try {
@@ -337,7 +332,6 @@ public class ChatActivity extends AppCompatActivity {
         return StringUtils.convertAsciiStringToString(message);
     }
 
-<<<<<<< HEAD
     private String getPublicKey(String first_prime, String second_prime, String exponent) { //TODO: calculate RSA public key
         return first_prime + second_prime + exponent;
     }
@@ -346,16 +340,6 @@ public class ChatActivity extends AppCompatActivity {
         elGamal = new ElGamal(prime_p, alpha, factor_g);
         return elGamal.getB().toString();
     }
-
-    private String encryptMessageRSA(String message, String public_key, String public_exponent) { //TODO: encrypting RSA
-        return "none";
-    }
-
-    private String decryptMessageRSA(String message) { //TODO: decrypting RSA
-        return "none";
-    }
-=======
->>>>>>> RSA
 
     private String encryptMessageElGamal(String message, String public_p, String public_b, String public_g) {
         return elGamal.encrypt(StringToASCII(message), public_p, public_b, public_g);

@@ -127,17 +127,6 @@
             android:id="@+id/etvSecondPrime"
             android:background="@drawable/edittext_design"
             android:padding="10dp"/>
-
-        <EditText
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="16dp"
-            android:layout_marginEnd="16dp"
-            android:layout_marginBottom="4dp"
-            android:hint="Public exponent"
-            android:id="@+id/etvPublicExponent"
-            android:background="@drawable/edittext_design"
-            android:padding="10dp"/>
     </LinearLayout>
 
     <LinearLayout

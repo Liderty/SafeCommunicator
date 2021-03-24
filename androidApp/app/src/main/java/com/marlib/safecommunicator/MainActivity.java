@@ -16,7 +16,7 @@ import android.widget.Toast;
 
 public class MainActivity extends AppCompatActivity {
 
-    private String DEFAULT_IP_ADRESS = "192.168.1.100:3000";
+    private String DEFAULT_IP_ADRESS = "192.168.1.23:3000";
     private int encryptingId = 0;
 
     EditText serverAdressEditText;
@@ -28,7 +28,6 @@ public class MainActivity extends AppCompatActivity {
     LinearLayout rsaSectionLayout;
     EditText firstPrimeEditText;
     EditText secondPrimeEditText;
-    EditText publicExponentEditText;
 
     LinearLayout elgamalSectionLayout;
     EditText primePEditText;
@@ -53,7 +52,6 @@ public class MainActivity extends AppCompatActivity {
         rsaSectionLayout = findViewById(R.id.sectionRSA);
         firstPrimeEditText = findViewById(R.id.etvFirstPrime);
         secondPrimeEditText = findViewById(R.id.etvSecondPrime);
-        publicExponentEditText = findViewById(R.id.etvPublicExponent);
 
         elgamalSectionLayout = findViewById(R.id.sectionElGamal);
         primePEditText = findViewById(R.id.etvPrimeP);
@@ -61,23 +59,17 @@ public class MainActivity extends AppCompatActivity {
         factorGEditText = findViewById(R.id.etvFactorG);
 
         serverAdressEditText.setText(DEFAULT_IP_ADRESS);
-<<<<<<< HEAD
         enterNameEditText.setText("testname");
+
+        /* RSA */
+        firstPrimeEditText.setText("104327");
+        secondPrimeEditText.setText("97883");
+
+        /* ElGamal */
         primePEditText.setText("229");
         alphaEditText.setText("70");
         factorGEditText.setText("6");
-=======
-        firstPrimeEditText.setText("104327");
-        secondPrimeEditText.setText("97883");
-        publicExponentEditText.setText("1");
-        enterNameEditText.setText("ddda");
 
-        StringUtils converter = new StringUtils();
-        String converted = converter.convertToAsciiString("Ziemniaki i inne dziwy!");
-        System.out.println(converted);
-        String reconverted = converter.convertAsciiStringToString(converted);
-        System.out.println(reconverted);
->>>>>>> RSA
 
         enterChatButton.setOnClickListener(v -> {
             Intent intent = new Intent(this, ChatActivity.class);
@@ -90,7 +82,6 @@ public class MainActivity extends AppCompatActivity {
                         intent.putExtra("encrypting", encryptingId);
                         intent.putExtra("first_prime", firstPrimeEditText.getText().toString());
                         intent.putExtra("second_prime", secondPrimeEditText.getText().toString());
-                        intent.putExtra("exponent", publicExponentEditText.getText().toString());
                         startActivity(intent);
                     } else {
                         Toast.makeText(this, "Empty fields!", Toast.LENGTH_SHORT).show();
@@ -129,8 +120,7 @@ public class MainActivity extends AppCompatActivity {
         return !(enterNameEditText.getText().toString().isEmpty()
                 || serverAdressEditText.getText().toString().isEmpty()
                 || firstPrimeEditText.getText().toString().isEmpty()
-                || secondPrimeEditText.getText().toString().isEmpty()
-                || publicExponentEditText.getText().toString().isEmpty());
+                || secondPrimeEditText.getText().toString().isEmpty());
     }
 
     private boolean isElgamalFieldsNotEmpty() {
