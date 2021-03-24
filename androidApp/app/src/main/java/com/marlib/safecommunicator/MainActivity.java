@@ -16,7 +16,7 @@ import android.widget.Toast;
 
 public class MainActivity extends AppCompatActivity {
 
-    private String DEFAULT_IP_ADRESS = "192.168.1.23:3000";
+    private String DEFAULT_IP_ADRESS = "192.168.1.100:3000";
     private int encryptingId = 0;
 
     EditText serverAdressEditText;
@@ -61,10 +61,23 @@ public class MainActivity extends AppCompatActivity {
         factorGEditText = findViewById(R.id.etvFactorG);
 
         serverAdressEditText.setText(DEFAULT_IP_ADRESS);
+<<<<<<< HEAD
         enterNameEditText.setText("testname");
         primePEditText.setText("229");
         alphaEditText.setText("70");
         factorGEditText.setText("6");
+=======
+        firstPrimeEditText.setText("104327");
+        secondPrimeEditText.setText("97883");
+        publicExponentEditText.setText("1");
+        enterNameEditText.setText("ddda");
+
+        StringUtils converter = new StringUtils();
+        String converted = converter.convertToAsciiString("Ziemniaki i inne dziwy!");
+        System.out.println(converted);
+        String reconverted = converter.convertAsciiStringToString(converted);
+        System.out.println(reconverted);
+>>>>>>> RSA
 
         enterChatButton.setOnClickListener(v -> {
             Intent intent = new Intent(this, ChatActivity.class);
@@ -82,6 +95,7 @@ public class MainActivity extends AppCompatActivity {
                     } else {
                         Toast.makeText(this, "Empty fields!", Toast.LENGTH_SHORT).show();
                     }
+                    break;
 
                 case 1:
                     if(isElgamalFieldsNotEmpty()) {

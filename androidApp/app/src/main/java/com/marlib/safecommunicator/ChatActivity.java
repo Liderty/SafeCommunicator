@@ -14,11 +14,17 @@ import org.jetbrains.annotations.Nullable;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.math.BigInteger;
+import java.util.ArrayList;
+import java.util.List;
+
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
 import okhttp3.WebSocket;
 import okhttp3.WebSocketListener;
+
+import static java.lang.Math.sqrt;
 
 public class ChatActivity extends AppCompatActivity {
 
@@ -34,10 +40,13 @@ public class ChatActivity extends AppCompatActivity {
     private int encrypting_method = 0;
 
     /* RSA */
-    private String public_exponent = "";
+    private String public_exponent = ""; //todo : do usunięcia, potrzebuje tylko 2 pola na klucz
     private String prime_factor_a = "";
     private String prime_factor_b = "";
     private String public_key = "";
+    private String private_key = "";
+    private int keyLongDecrypt = 20;
+    private RSA rsa;
 
     /* ELGAMAL */
     private String prime_p = "";
@@ -72,9 +81,16 @@ public class ChatActivity extends AppCompatActivity {
             prime_factor_a = getIntent().getStringExtra("first_prime");
             prime_factor_b = getIntent().getStringExtra("second_prime");
             public_exponent = getIntent().getStringExtra("exponent");
+            rsa = new RSA( prime_factor_a, prime_factor_b );
+            String public_private_key_ = rsa.getPublicKey();
+            if( public_private_key_ != "ErrorRSA" ) {
+                String[] public_private_key = public_private_key_.split(";");
+                public_key = public_private_key[0] + ";" + public_private_key[1] + ";" + public_private_key[ 2 ];
 
-            public_key = getPublicKey(prime_factor_a, prime_factor_b, public_exponent);
-
+            }
+            else {
+                System.out.println("error creating keys");
+            }
         } else if (encrypting_method==1) {
             if(!name.equals("testname2")) {
                 prime_p = getIntent().getStringExtra("prime_p");
@@ -149,7 +165,7 @@ public class ChatActivity extends AppCompatActivity {
                         String deencrypted_message = "";
 
                         if(encrypting_method==0) {
-                            deencrypted_message = decryptMessageRSA(jsonObject.getString("message"));
+                            deencrypted_message = rsa.decryptMessageRSA(jsonObject.getString("message"));
                         } else if(encrypting_method==1) {
                             deencrypted_message = decryptMessageElGamal(jsonObject.getString("message"));
                         }
@@ -187,7 +203,12 @@ public class ChatActivity extends AppCompatActivity {
                 System.out.println("KLUCZE " + keys.toString());
                 if(encrypting_method==0) {
                     try {
-                        encrypted_message = encryptMessageRSA(message, keys.getString("public_key"), keys.getString("public_exponent"));
+                        String[] tempKeys = keys.getString("public_key").split(";");
+                        String key1 = tempKeys[ 0 ];
+                        String key2 = tempKeys[ 1 ];
+                        int key3 = Integer.parseInt( tempKeys[ 2 ] );
+
+                        encrypted_message = rsa.encryptMessageRSA(message, key1, key2, key3 );
                     } catch (JSONException e) {
                         e.printStackTrace();
                     }
@@ -247,7 +268,9 @@ public class ChatActivity extends AppCompatActivity {
             e.printStackTrace();
         }
     }
-
+    private String getPublicKeyB(String prime_p, String alpha, String factor_g) { //TODO: calculate ElGamal public B number
+        return prime_p + alpha + factor_g;
+    }
     private void sendElGamalKeys() {
         JSONObject jsonObject = new JSONObject();
         try {
@@ -314,6 +337,7 @@ public class ChatActivity extends AppCompatActivity {
         return StringUtils.convertAsciiStringToString(message);
     }
 
+<<<<<<< HEAD
     private String getPublicKey(String first_prime, String second_prime, String exponent) { //TODO: calculate RSA public key
         return first_prime + second_prime + exponent;
     }
@@ -330,6 +354,8 @@ public class ChatActivity extends AppCompatActivity {
     private String decryptMessageRSA(String message) { //TODO: decrypting RSA
         return "none";
     }
+=======
+>>>>>>> RSA
 
     private String encryptMessageElGamal(String message, String public_p, String public_b, String public_g) {
         return elGamal.encrypt(StringToASCII(message), public_p, public_b, public_g);
