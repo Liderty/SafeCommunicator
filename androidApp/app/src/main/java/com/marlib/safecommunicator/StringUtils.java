@@ -1,31 +1,41 @@
 package com.marlib.safecommunicator;
 
 public final class StringUtils {
+    private static final String ASCII_CHARACTERS = "QWERTYUIOPASDFGHJKLZXCVBNM 1234567890-=qwertyuiop[]asdfghjkl;'zxcvbnm,./{}:ąęśćżźńół\"\\_+!@#$%^&*()`~";
 
     private StringUtils() {
         throw new UnsupportedOperationException();
     }
 
     public static String convertToAsciiString(String stringToConvert) {
-        String outputAsciiString = "";
+        StringBuilder outputAsciiString = new StringBuilder();
 
-        for(char sign: stringToConvert.toCharArray()) {
-            outputAsciiString += Integer.toString((int) sign);
-            outputAsciiString += " ";
+        for (char sign : stringToConvert.toCharArray()) {
+            outputAsciiString.append(Integer.toString((int) sign));
+            outputAsciiString.append(" ");
         }
 
-        return  outputAsciiString;
+        return outputAsciiString.toString();
     }
 
     public static String convertAsciiStringToString(String asciiString) {
         String[] splitedString = asciiString.split("\\s+");
-        String outputString = "";
+        StringBuilder outputString = new StringBuilder();
 
-        for(String sign: splitedString) {
+        for (String sign : splitedString) {
             char charSign = (char) Integer.parseInt(sign);
-            outputString += charSign;
+            outputString.append(charSign);
         }
 
-        return outputString;
+        return outputString.toString();
     }
+
+    public static int charToInt(char ch) {
+        return ASCII_CHARACTERS.indexOf(ch);
+    }
+
+    public static char intToChar(int index) {
+        return ASCII_CHARACTERS.charAt(index);
+    }
+
 }
