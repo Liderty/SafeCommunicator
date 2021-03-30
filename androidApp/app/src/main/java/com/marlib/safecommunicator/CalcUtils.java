@@ -1,5 +1,7 @@
 package com.marlib.safecommunicator;
 
+import static java.lang.Math.max;
+
 public final class CalcUtils {
 
     private CalcUtils() {
@@ -7,6 +9,10 @@ public final class CalcUtils {
     }
 
     public static int greatestCommonDivisor(int a, int b) {
+        if(a==0 || b==0) {
+            return max(a, b);
+        }
+
         if (a != b) {
             return greatestCommonDivisor(a > b ? (a - b) : a, b > a ? (b - a) : b);
         }

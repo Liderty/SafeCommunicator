@@ -22,7 +22,7 @@ public class MessageAdapter extends RecyclerView.Adapter {
     private LayoutInflater inflater;
     private List<JSONObject> messages = new ArrayList<>();
 
-    public MessageAdapter (LayoutInflater inflater) {
+    public MessageAdapter(LayoutInflater inflater) {
         this.inflater = inflater;
     }
 
@@ -54,10 +54,10 @@ public class MessageAdapter extends RecyclerView.Adapter {
         JSONObject message = messages.get(position);
 
         try {
-            if(message.getBoolean("isSent")){
-                if(message.has("message")) return TYPE_MESSAGE_SENT;
+            if (message.getBoolean("isSent")) {
+                if (message.has("message")) return TYPE_MESSAGE_SENT;
             } else {
-                if(message.has("message")) return TYPE_MESSAGE_RECIVED;
+                if (message.has("message")) return TYPE_MESSAGE_RECIVED;
             }
 
         } catch (JSONException e) {
@@ -91,15 +91,23 @@ public class MessageAdapter extends RecyclerView.Adapter {
         JSONObject message = messages.get(position);
 
         try {
-            if(message.getBoolean("isSent")) {
-                if(message.has("message")){
+            if (message.getBoolean("isSent")) {
+                if (message.has("message")) {
                     SentMessageHolder messageHolder = (SentMessageHolder) holder;
                     messageHolder.messageText.setText(message.getString("message"));
                 }
             } else {
-                if(message.has("message")){
+                if (message.has("message")) {
                     RecivedMessageHolder messageHolder = (RecivedMessageHolder) holder;
                     messageHolder.nameTextView.setText(message.getString("name"));
+
+                    if ((messages.size() >= 2) && (position >= 1)) {
+                        if (messages.get(position - 1).getString("name").equals(message.getString("name")) &&
+                                !messages.get(position - 1).getBoolean("isSent")) {
+                            messageHolder.nameTextView.setVisibility(View.GONE);
+                        }
+                    }
+
                     messageHolder.messageTextView.setText(message.getString("message"));
                 }
             }
@@ -113,7 +121,7 @@ public class MessageAdapter extends RecyclerView.Adapter {
         return messages.size();
     }
 
-    public void addItem (JSONObject jsonObject) {
+    public void addItem(JSONObject jsonObject) {
         messages.add(jsonObject);
         notifyDataSetChanged();
     }
