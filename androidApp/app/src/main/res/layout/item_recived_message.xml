@@ -27,7 +27,7 @@
         android:layout_marginBottom="4dp"
         android:padding="8dp"
         android:textSize="16sp"
-        android:background="@color/cardview_dark_background"
+        android:background="@drawable/incoming_message_design"
         android:textColor="#ffffff"
         android:text="Test messsage text"
         android:id="@+id/tvRecivedMessage" />

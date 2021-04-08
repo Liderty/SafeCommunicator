@@ -5,6 +5,7 @@ const GET_CONNECTIONS = 'get_connections'
 const GET_ENCRYPTING_METHOD = 'get_encrypting_method'
 const SET_SERVER_ENCRYPTING_METHOD = 'set_encrypting_method'
 const SET_ENCRYPTING_METHOD = 'set_encrypting_method'
+const SET_PENDING_CONNECTION = 'set_pending_connection'
 
 const server = http.createServer((req, res) => {})
 
@@ -14,7 +15,6 @@ server.listen(3000, ()=>{
 
 var webSocketServer = new SocketServer({httpServer:server})
 
-const connections = []
 const connections_data = []
 
 var server_encrypting_method = '-1'
@@ -27,7 +27,6 @@ webSocketServer.on('request', (req) => {
         console.log('own| New connection')
 
         var connection_dict = {'connection': connection}
-        connections.push(connection)
         connections_data.push(connection_dict)
         number_of_connections += 1;
 
@@ -55,37 +54,41 @@ webSocketServer.on('request', (req) => {
                 console.log('in< MESSAGE:'+json_message.utf8Data.message)
                 printValues()
 
-                connections.forEach(element => {
-                    if (element != connection)
-                        element.sendUTF(json_message.utf8Data)
+                connections_data.forEach(connection_json => {
+                    if(connection_json['connection'] != connection) {
+                        connection_json['connection'].sendUTF(json_message.utf8Data)    
+                    }
                 })
             }
         })
     
         connection.on('close', (resCode, des) => {
             console.log('own| connection closed')
-            clearConnectionData(connection)
-            number_of_connections -= 1;
+            updateConnectionData(connection)
+            number_of_connections -= 1
+
             if(number_of_connections <= 0) {
                 clearEncryptingMethod()
+            } 
+            
+            if(number_of_connections == 1){                
+                sendPendingConnection()
             }
+
         })    
     }
 })
 
-function clearConnectionData(connection) {
-
-    connections.splice(connections.indexOf(connection), 1)
+function updateConnectionData(connection) {
     for (var i=0; i < connections_data.length; i++) {
-        if(connections_data[i].connection = connection) {
+        if(connections_data[i].connection == connection) {
             connections_data.splice(i)
         }    
     }
-    console.log('own| Removed connection')
+    console.log('own| Updated connection')
 }
 
 function saveKeys(jsonObject, connection) {
-
     connections_data.forEach(connection_dict => {
         if (connection_dict['connection'] == connection) {
             if(server_encrypting_method == '-1') {
@@ -169,5 +172,24 @@ function sendKeys(connection) {
             connection.sendUTF(jsonObject);
             console.log('out> Sending Keys and Connections')
         }
+    })
+}
+
+function sendPendingConnection() {
+    
+    console.log('kurwa:'+connections_data.length)
+    connections_data.forEach(element => {
+        console.log('   XD:'+element)
+    })
+
+    console.log('pending')
+
+    connections_data.forEach(connection_dict => {
+        console.log('yoo')
+        var keysDict = {task: SET_PENDING_CONNECTION}
+        var jsonObject = JSON.stringify(keysDict)
+        console.log('testsy')
+        connection_dict['connection'].sendUTF(jsonObject)
+        console.log('out> Pending Connection Set')
     })
 }

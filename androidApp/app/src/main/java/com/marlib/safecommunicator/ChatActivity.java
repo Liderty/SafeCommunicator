@@ -4,9 +4,11 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.graphics.Color;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.EditText;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import org.jetbrains.annotations.NotNull;
@@ -30,6 +32,11 @@ public class ChatActivity extends AppCompatActivity {
     private static final String SET_SERVER_ENCRYPTING_METHOD = "set_server_encrypting_method";
     private static final String GET_ENCRYPTING_METHOD = "get_encrypting_method";
     private static final String GET_CONNECTIONS = "get_connections";
+    private static final String SET_PENDING_CONNECTION = "set_pending_connection";
+
+    private static final String PENDING_CONNCECTION = "Pending connection...";
+    private static final String CONNECTED = "Connected";
+    private static final String CONNECTION_FAILED = "Connection Failed!";
 
     private int encrypting_method = 0;
 
@@ -56,6 +63,8 @@ public class ChatActivity extends AppCompatActivity {
     private View sendButton;
     private RecyclerView mainChatRecycleView;
     private MessageAdapter messageAdapter;
+    private TextView statusTextView;
+    private TextView usernameTextView;
 
     private ElGamal elGamal;
 
@@ -95,6 +104,20 @@ public class ChatActivity extends AppCompatActivity {
         }
 
         initiateSocketConnection();
+    }
+
+    private void setUsername(String username) {
+        usernameTextView.setText(username);
+    }
+
+    private void setStatus(Boolean status) {
+        if(status){
+            statusTextView.setText(CONNECTED);
+            statusTextView.setTextColor(Color.parseColor("#00FF00"));
+        } else {
+            statusTextView.setText(PENDING_CONNCECTION);
+            statusTextView.setTextColor(Color.WHITE);
+        }
     }
 
     private void initiateSocketConnection() {
@@ -145,6 +168,10 @@ public class ChatActivity extends AppCompatActivity {
 
                         } else if (task.equals(GET_CONNECTIONS)) {
                             keys = jsonObject;
+                            setStatus(true);
+
+                        } else if (task.equals(SET_PENDING_CONNECTION)) {
+                            setStatus(false);
                         }
                     } else {
                         String decrypted_message = "";
@@ -175,7 +202,10 @@ public class ChatActivity extends AppCompatActivity {
         messageAdapter = new MessageAdapter(getLayoutInflater());
         mainChatRecycleView.setAdapter(messageAdapter);
         mainChatRecycleView.setLayoutManager(new LinearLayoutManager(this));
+        usernameTextView = findViewById(R.id.tvUsername);
+        statusTextView = findViewById(R.id.tvStatus);
 
+        setUsername(name);
 
         sendButton.setOnClickListener(v -> {
             String message = messageEditText.getText().toString();
