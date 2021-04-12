@@ -6,11 +6,12 @@ const GET_ENCRYPTING_METHOD = 'get_encrypting_method'
 const SET_SERVER_ENCRYPTING_METHOD = 'set_encrypting_method'
 const SET_ENCRYPTING_METHOD = 'set_encrypting_method'
 const SET_PENDING_CONNECTION = 'set_pending_connection'
+const GET_KEYS = 'get_keys'
 
 const server = http.createServer((req, res) => {})
 
 server.listen(3000, ()=>{
-    console.log("Listening on port 3000...")
+    console.log("own| Listening on port 3000...")
 })
 
 var webSocketServer = new SocketServer({httpServer:server})
@@ -23,14 +24,11 @@ var number_of_connections = 0
 webSocketServer.on('request', (req) => {
     if(number_of_connections <= 1) {
         const connection = req.accept()
-
         console.log('own| New connection')
 
         var connection_dict = {'connection': connection}
         connections_data.push(connection_dict)
         number_of_connections += 1;
-
-        resendKeys()
     
         connection.on('message', (json_message) => {
             var jsonObject = JSON.parse(json_message.utf8Data)
@@ -48,11 +46,13 @@ webSocketServer.on('request', (req) => {
                 } else if (jsonObject.task == SET_SERVER_ENCRYPTING_METHOD) {
                     console.log('in< Set_server_encrypting_method')
                     setEncryptingMethod(jsonObject.encrypting_method)
+                } else if (jsonObject.task == GET_KEYS) {
+                    console.log('in< Get_keys request')
+                    resendKeys()
                 }
 
             } else {
                 console.log('in< MESSAGE:'+json_message.utf8Data.message)
-                printValues()
 
                 connections_data.forEach(connection_json => {
                     if(connection_json['connection'] != connection) {
@@ -64,6 +64,7 @@ webSocketServer.on('request', (req) => {
     
         connection.on('close', (resCode, des) => {
             console.log('own| connection closed')
+            
             updateConnectionData(connection)
             number_of_connections -= 1
 
@@ -76,16 +77,18 @@ webSocketServer.on('request', (req) => {
             }
 
         })    
+    } else {
+        req.reject()
     }
 })
 
-function updateConnectionData(connection) {
-    for (var i=0; i < connections_data.length; i++) {
-        if(connections_data[i].connection == connection) {
-            connections_data.splice(i)
+function updateConnectionData(connection_to_remove) {
+    for (var i=0; i<connections_data.length; i++) {
+        if(connections_data[i].connection == connection_to_remove) {
+            connections_data.splice(i, 1)
         }    
     }
-    console.log('own| Updated connection')
+    console.log('own| Updated connections')
 }
 
 function saveKeys(jsonObject, connection) {
@@ -97,9 +100,10 @@ function saveKeys(jsonObject, connection) {
 
             if(jsonObject.encrypting_method == '0') {
                 console.log('   public_key: '+jsonObject.public_key)
-        
+            
                 connection_dict.encrypting_method = jsonObject.encrypting_method
                 connection_dict.public_key = jsonObject.public_key
+                console.log('own| Saveing Keys')
         
             } else if(jsonObject.encrypting_method == '1') {
                 console.log('   public_p: '+jsonObject.public_p)
@@ -110,18 +114,20 @@ function saveKeys(jsonObject, connection) {
                 connection_dict.public_p = jsonObject.public_p
                 connection_dict.public_b = jsonObject.public_b
                 connection_dict.public_g = jsonObject.public_g
+                console.log('own| Saveing Keys')
             }
         }
-        console.log('own| Saveing Encrypting')
+        
     })
 }
 
+/* Debugging function */
 function printValues() {
     console.log("   sem:"+server_encrypting_method)
     console.log("   noc:"+number_of_connections)
+    console.log("   size:"+connections_data.length)
 
     connections_data.forEach(connection_dict => {
-        console.log("   "+connection_dict.encrypting_method)
         if(connection_dict.encrypting_method == "0") {
             console.log("   "+connection_dict.public_key)
         } else {
@@ -176,19 +182,9 @@ function sendKeys(connection) {
 }
 
 function sendPendingConnection() {
-    
-    console.log('kurwa:'+connections_data.length)
-    connections_data.forEach(element => {
-        console.log('   XD:'+element)
-    })
-
-    console.log('pending')
-
     connections_data.forEach(connection_dict => {
-        console.log('yoo')
         var keysDict = {task: SET_PENDING_CONNECTION}
         var jsonObject = JSON.stringify(keysDict)
-        console.log('testsy')
         connection_dict['connection'].sendUTF(jsonObject)
         console.log('out> Pending Connection Set')
     })

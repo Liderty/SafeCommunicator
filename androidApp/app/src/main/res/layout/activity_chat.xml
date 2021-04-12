@@ -15,7 +15,7 @@
         android:layout_alignParentLeft="true"
         android:padding="8dp"
         android:background="@drawable/statusbar_design"
-        android:weightSum="2">
+        android:weightSum="3">
 
         <TextView
             android:id="@+id/tvStatus"
@@ -24,6 +24,17 @@
             android:layout_weight="1"
             android:textColor="@color/white"
             android:text="Pending Connection..."/>
+
+        <TextView
+            android:id="@+id/tvEncrypting"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:textStyle="bold"
+            android:textColor="@color/white"
+            android:textAlignment="center"
+            android:text="Encrypting"
+            android:gravity="center_horizontal" />
 
         <TextView
             android:id="@+id/tvUsername"

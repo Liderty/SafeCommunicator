@@ -16,6 +16,9 @@ import org.jetbrains.annotations.Nullable;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.util.Timer;
+import java.util.TimerTask;
+
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
@@ -33,7 +36,10 @@ public class ChatActivity extends AppCompatActivity {
     private static final String GET_ENCRYPTING_METHOD = "get_encrypting_method";
     private static final String GET_CONNECTIONS = "get_connections";
     private static final String SET_PENDING_CONNECTION = "set_pending_connection";
+    private static final String GET_KEYS = "get_keys";
 
+    private static final String ENCRYPTING_RSA = "RSA";
+    private static final String ENCRYPTING_ELGAMAL = "ElGamal";
     private static final String PENDING_CONNCECTION = "Pending connection...";
     private static final String CONNECTED = "Connected";
     private static final String CONNECTION_FAILED = "Connection Failed!";
@@ -65,6 +71,7 @@ public class ChatActivity extends AppCompatActivity {
     private MessageAdapter messageAdapter;
     private TextView statusTextView;
     private TextView usernameTextView;
+    private TextView encryptingTextView;
 
     private ElGamal elGamal;
 
@@ -108,6 +115,12 @@ public class ChatActivity extends AppCompatActivity {
 
     private void setUsername(String username) {
         usernameTextView.setText(username);
+    }
+
+    private void setEncryptingName() {
+        if(encrypting_method==0){
+            encryptingTextView.setText(ENCRYPTING_RSA);
+        } else encryptingTextView.setText(ENCRYPTING_ELGAMAL);
     }
 
     private void setStatus(Boolean status) {
@@ -203,9 +216,11 @@ public class ChatActivity extends AppCompatActivity {
         mainChatRecycleView.setAdapter(messageAdapter);
         mainChatRecycleView.setLayoutManager(new LinearLayoutManager(this));
         usernameTextView = findViewById(R.id.tvUsername);
+        encryptingTextView = findViewById(R.id.tvEncrypting);
         statusTextView = findViewById(R.id.tvStatus);
 
         setUsername(name);
+        setEncryptingName();
 
         sendButton.setOnClickListener(v -> {
             String message = messageEditText.getText().toString();
@@ -251,6 +266,7 @@ public class ChatActivity extends AppCompatActivity {
                 }
             } else {
                 Toast.makeText(ChatActivity.this, "Need interlocutor!", Toast.LENGTH_SHORT).show();
+                requestKeys();
             }
         });
     }
@@ -264,6 +280,16 @@ public class ChatActivity extends AppCompatActivity {
             sendRSAKeys();
         } else if (encrypting_method == 1) {
             sendElGamalKeys();
+        }
+    }
+
+    private void requestKeys() {
+        JSONObject jsonObject = new JSONObject();
+        try {
+            jsonObject.put("task", GET_KEYS);
+            webSocket.send(jsonObject.toString());
+        } catch (JSONException e) {
+            e.printStackTrace();
         }
     }
 
@@ -321,7 +347,14 @@ public class ChatActivity extends AppCompatActivity {
     }
 
     private void rejectConnection() {
-        finish();
+        Toast.makeText(ChatActivity.this, "Wrong Encrypting", Toast.LENGTH_SHORT).show();
+        Timer t = new Timer();
+        t.schedule(new TimerTask() {
+            @Override
+            public void run() {
+                finish();
+            }
+        }, 3000L);
     }
 
     private void resolveServerKeys() {
