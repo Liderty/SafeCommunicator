@@ -37,6 +37,8 @@ public class ChatActivity extends AppCompatActivity {
     private static final String GET_CONNECTIONS = "get_connections";
     private static final String SET_PENDING_CONNECTION = "set_pending_connection";
     private static final String GET_KEYS = "get_keys";
+    private static final String REMOVE_CONNECTION = "remove_connection";
+
 
     private static final String ENCRYPTING_RSA = "RSA";
     private static final String ENCRYPTING_ELGAMAL = "ElGamal";
@@ -113,6 +115,12 @@ public class ChatActivity extends AppCompatActivity {
         initiateSocketConnection();
     }
 
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        webSocket.close(1000, "Closing Connection");
+    }
+
     private void setUsername(String username) {
         usernameTextView.setText(username);
     }
@@ -155,12 +163,6 @@ public class ChatActivity extends AppCompatActivity {
         @Override
         public void onFailure(@NotNull WebSocket webSocket, @NotNull Throwable t, @Nullable Response response) {
             super.onFailure(webSocket, t, response);
-            rejectConnection();
-        }
-
-        @Override
-        public void onClosed(@NotNull WebSocket webSocket, int code, @NotNull String reason) {
-            super.onClosed(webSocket, code, reason);
             rejectConnection();
         }
 
@@ -347,6 +349,10 @@ public class ChatActivity extends AppCompatActivity {
     }
 
     private void rejectConnection() {
+        encryptingTextView.setTextColor(Color.RED);
+        statusTextView.setText(CONNECTION_FAILED);
+        statusTextView.setTextColor(Color.RED);
+
         Toast.makeText(ChatActivity.this, "Wrong Encrypting", Toast.LENGTH_SHORT).show();
         Timer t = new Timer();
         t.schedule(new TimerTask() {

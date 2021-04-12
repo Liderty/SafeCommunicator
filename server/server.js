@@ -7,6 +7,7 @@ const SET_SERVER_ENCRYPTING_METHOD = 'set_encrypting_method'
 const SET_ENCRYPTING_METHOD = 'set_encrypting_method'
 const SET_PENDING_CONNECTION = 'set_pending_connection'
 const GET_KEYS = 'get_keys'
+const REMOVE_CONNECTION = 'remove_connection'
 
 const server = http.createServer((req, res) => {})
 
@@ -49,6 +50,9 @@ webSocketServer.on('request', (req) => {
                 } else if (jsonObject.task == GET_KEYS) {
                     console.log('in< Get_keys request')
                     resendKeys()
+                } else if (jsonObject.task == REMOVE_CONNECTION) {
+                    console.log('in< Remove_connection request')
+                    connection.close(1000)
                 }
 
             } else {
@@ -65,7 +69,7 @@ webSocketServer.on('request', (req) => {
         connection.on('close', (resCode, des) => {
             console.log('own| connection closed')
             
-            updateConnectionData(connection)
+            removeConnectionData(connection)
             number_of_connections -= 1
 
             if(number_of_connections <= 0) {
@@ -82,13 +86,13 @@ webSocketServer.on('request', (req) => {
     }
 })
 
-function updateConnectionData(connection_to_remove) {
+function removeConnectionData(connection_to_remove) {
     for (var i=0; i<connections_data.length; i++) {
         if(connections_data[i].connection == connection_to_remove) {
             connections_data.splice(i, 1)
         }    
     }
-    console.log('own| Updated connections')
+    console.log('own| Deleting connection')
 }
 
 function saveKeys(jsonObject, connection) {
