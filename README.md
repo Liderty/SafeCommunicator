@@ -10,9 +10,13 @@ node server.js
 ```
 Server will be set up on port 3000 and listen for applications to connect. It will provide feedback of evenets occurring on the server.
 
+![image](screenshots/s_server.PNG)
+
 ## Android App
 
-An Android application is also simple and intuitive. In main panel app allows User to set Server Ip Address, set Username for chat and choose encrypting method. This choice has an impact on which fields will be required to communicate between users. Application does not porvide generating private keys. The user is required to know the chosen encryption method and therefore set the appropriate private keys. First user wihch will successfully connect to the server determines it's enrypting method. If all users will quit the server, it's enrypting method will be wiped out. 
+An Android application is also simple and intuitive. In main panel app allows User to set Server Ip Address, set Username for chat and choose encrypting method. This choice has an impact on which fields will be required to communicate between users. Application does not porvide generating private keys. The user is required to know the chosen encryption method and therefore set the appropriate private keys. First user wihch will successfully connect to the server determines it's enrypting method. If all users will quit the server, it's enrypting method will be wiped out.
+
+<td><img src="screenshots/s_main.png" width=288 height=608></td>
 
 #### RSA
 RSA encrypting requires two prime factors to create public keys. Application requires same matching private keys for RSA communication to be set up for both users. 
@@ -31,6 +35,18 @@ If users set up correct values for private keys Connection should be set up. App
 * Pending Connection - informs that user connected successfully to the server, but there is no interlocutor conneted yet.
 * Connection Failed - informs that something went wrong. Most common is that user tried connect to different encrypting method chat.
 
+<table>
+  <tr>
+    <td>Chat</td>
+     <td>Failed Connection</td>
+     <td>Pending Connection</td>
+  </tr>
+  <tr>
+    <td><img src="screenshots/s_chat.png"></td>
+    <td><img src="screenshots/s_failed.png"></td>
+    <td><img src="screenshots/s_pending.png"></td>
+  </tr>
+ </table>
 
 ## Requirements
 
