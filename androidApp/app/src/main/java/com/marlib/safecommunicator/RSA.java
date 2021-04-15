@@ -147,6 +147,11 @@ public class RSA {
             blok = Long.parseLong(message.substring(i, i + keyLongDecrypt));
             BigInteger longBLOK = new BigInteger(Long.toString(blok));
             BigInteger m = longBLOK.modPow(longD, longN);
+
+            if (m.toString().length() % 2 == 1) {
+                msg.append("0");
+            }
+
             msg.append(m.toString());
         }
 

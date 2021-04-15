@@ -1,7 +1,7 @@
 package com.marlib.safecommunicator;
 
 public final class StringUtils {
-    private static final String ASCII_CHARACTERS = "QWERTYUIOPASDFGHJKLZXCVBNM 1234567890-=qwertyuiop[]asdfghjkl;'zxcvbnm,./{}:ąęśćżźńół\"\\_+!@#$%^&*()`~";
+    private static final String ASCII_CHARACTERS = "`;1234567890QWERTYUIOPASDFGHJKLZXCVBNM a-=qwertyuiop[]asdfghjkl'zxcvbnm,./{}:ąęśćżźńół\"\\_+!@#$%^*()";
 
     private StringUtils() {
         throw new UnsupportedOperationException();
