@@ -57,6 +57,6 @@ Android App was tested on Android version 7 and above!
 
 ## Download
 
-Node.js Server: <a id="raw-url" href="https://github.com/Liderty/SafeCommunicator/raw/main/server/server.js" download>Server</a>
+Node.js Server: <a href="https://github.com/Liderty/SafeCommunicator/raw/main/binaries/SafeCommunicatorServer.zip" download>Server</a>
 
-Android App:    <a id="raw-url" href="https://github.com/Liderty/SafeCommunicator/raw/main/apk/SafeCommunicator.apk">Communicator</a>
+Android App:    <a id="raw-url" href="https://github.com/Liderty/SafeCommunicator/raw/main/binaries/SafeCommunicator.apk">Communicator</a>
