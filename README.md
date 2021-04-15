@@ -26,6 +26,7 @@ Elgamal encrypting method works quite different. It needs three different factor
 * P -  sufficiently large Prime number p such that computation of the discrete logarithm is practically unfeasible.
 * Alpha - an integer that meets the condition  `0 < Alpha < P - 1`
 * G - Factor Number
+
 Every user should have it's own factors for Elgamal encrypting. Client-Server communication exchenges public keys between users. While sending message, application enrypt it with other user public keys. Only user knowing private keys is able to decrypt message. Messages are sent to destination users in encrypted form. 
 
 ### Communication Status
@@ -53,3 +54,9 @@ If users set up correct values for private keys Connection should be set up. App
 Server requires [Node.js](https://nodejs.org/en/).
 
 Android App was tested on Android version 7 and above!
+
+## Download
+
+Node.js Server: <a id="raw-url" href="https://github.com/Liderty/SafeCommunicator/raw/main/server/server.js" download>Server</a>
+
+Android App:    <a id="raw-url" href="https://github.com/Liderty/SafeCommunicator/raw/main/apk/SafeCommunicator.apk">Communicator</a>
