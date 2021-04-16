@@ -30,11 +30,12 @@ Elgamal encrypting method works quite different. It needs three different factor
 Every user should have it's own factors for Elgamal encrypting. Client-Server communication exchenges public keys between users. While sending message, application enrypt it with other user public keys. Only user knowing private keys is able to decrypt message. Messages are sent to destination users in encrypted form. 
 
 ### Communication Status
-If users set up correct values for private keys Connection should be set up. Application has 3 different states in main chat window.
+If users set up correct values for private keys Connection should be set up. Application has few different states in main chat window:
 
 * Connected - informs that connection was established and users are able to exchange messages.
 * Pending Connection - informs that user connected successfully to the server, but there is no interlocutor conneted yet.
 * Connection Failed - informs that something went wrong. Most common is that user tried connect to different encrypting method chat.
+* Connecting to the server - occures while application is trying to connect to specified server adress until it does, if cannot connect then after timeout, application will return to main window.
 
 <table>
   <tr>
