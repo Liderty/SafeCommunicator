@@ -92,7 +92,7 @@ public class ChatActivity extends AppCompatActivity {
             rsa = new RSA(prime_factor_a, prime_factor_b);
             String public_private_key_ = rsa.getPublicKey();
 
-            if (public_private_key_ != "ErrorRSA") {
+            if (!public_private_key_.equals("ErrorRSA")) {
                 String[] public_private_key = public_private_key_.split(";");
                 public_key = public_private_key[0] + ";" + public_private_key[1] + ";" + public_private_key[2];
             } else {
@@ -118,7 +118,11 @@ public class ChatActivity extends AppCompatActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        webSocket.close(1000, "Closing Connection");
+        try {
+            webSocket.close(1000, "Closing Connection");
+        } catch (Exception exception) {
+            exception.printStackTrace();
+        }
     }
 
     private void setUsername(String username) {
@@ -126,13 +130,13 @@ public class ChatActivity extends AppCompatActivity {
     }
 
     private void setEncryptingName() {
-        if(encrypting_method==0){
+        if (encrypting_method == 0) {
             encryptingTextView.setText(ENCRYPTING_RSA);
         } else encryptingTextView.setText(ENCRYPTING_ELGAMAL);
     }
 
     private void setStatus(Boolean status) {
-        if(status){
+        if (status) {
             statusTextView.setText(CONNECTED);
             statusTextView.setTextColor(Color.parseColor("#00FF00"));
         } else {
@@ -143,8 +147,20 @@ public class ChatActivity extends AppCompatActivity {
 
     private void initiateSocketConnection() {
         OkHttpClient client = new OkHttpClient();
-        Request request = new Request.Builder().url(server_path + server_ip_adress).build();
-        webSocket = client.newWebSocket(request, new SocketListener());
+        try {
+            Request request = new Request.Builder().url(server_path + server_ip_adress).build();
+            webSocket = client.newWebSocket(request, new SocketListener());
+        } catch (Exception any) {
+            Toast.makeText(ChatActivity.this, "Failed Connection! Wrong IP Adress!", Toast.LENGTH_LONG).show();
+
+            Timer t = new Timer();
+            t.schedule(new TimerTask() {
+                @Override
+                public void run() {
+                    finish();
+                }
+            }, 3000L);
+        }
     }
 
     private class SocketListener extends WebSocketListener {
@@ -177,16 +193,21 @@ public class ChatActivity extends AppCompatActivity {
 
                         String task = jsonObject.getString("task");
 
-                        if (task.equals(GET_ENCRYPTING_METHOD)) {
-                            server_encrypthing_method = jsonObject.getString("encrypting_method");
-                            resolveServerKeys();
+                        switch (task) {
+                            case GET_ENCRYPTING_METHOD:
+                                server_encrypthing_method = jsonObject.getString("encrypting_method");
+                                resolveServerKeys();
+                                setStatus(false);
 
-                        } else if (task.equals(GET_CONNECTIONS)) {
-                            keys = jsonObject;
-                            setStatus(true);
+                                break;
+                            case GET_CONNECTIONS:
+                                keys = jsonObject;
+                                setStatus(true);
 
-                        } else if (task.equals(SET_PENDING_CONNECTION)) {
-                            setStatus(false);
+                                break;
+                            case SET_PENDING_CONNECTION:
+                                setStatus(false);
+                                break;
                         }
                     } else {
                         String decrypted_message = "";
@@ -349,11 +370,12 @@ public class ChatActivity extends AppCompatActivity {
     }
 
     private void rejectConnection() {
-        encryptingTextView.setTextColor(Color.RED);
-        statusTextView.setText(CONNECTION_FAILED);
-        statusTextView.setTextColor(Color.RED);
-
-        Toast.makeText(ChatActivity.this, "Wrong Encrypting", Toast.LENGTH_SHORT).show();
+        if(encryptingTextView != null) {
+            encryptingTextView.setTextColor(Color.RED);
+            statusTextView.setText(CONNECTION_FAILED);
+            statusTextView.setTextColor(Color.RED);
+            Toast.makeText(this, "Wrong Encrypting", Toast.LENGTH_SHORT).show();
+        }
         Timer t = new Timer();
         t.schedule(new TimerTask() {
             @Override

@@ -14,7 +14,7 @@
         android:layout_height="wrap_content"
         android:layout_marginStart="16dp"
         android:layout_gravity="center"
-        android:text="IP adress"
+        android:text="@string/ip_adress"
         android:textStyle="bold"
         android:textSize="16sp"
         android:textColor="@color/white"
@@ -26,7 +26,7 @@
         android:layout_marginStart="16dp"
         android:layout_marginEnd="16dp"
         android:layout_marginBottom="4dp"
-        android:hint="Enter Server IP adress..."
+        android:hint="@string/enter_server_ip_adress"
         android:id="@+id/etvIPadress"
         android:background="@drawable/edittext_design"
         android:padding="10dp"/>
@@ -36,7 +36,7 @@
         android:layout_height="wrap_content"
         android:layout_marginStart="16dp"
         android:layout_gravity="center"
-        android:text="Chat name"
+        android:text="@string/chat_name"
         android:textStyle="bold"
         android:textSize="16sp"
         android:textColor="@color/white"
@@ -48,7 +48,7 @@
         android:layout_marginStart="16dp"
         android:layout_marginEnd="16dp"
         android:layout_marginBottom="4dp"
-        android:hint="Enter your name"
+        android:hint="@string/enter_your_name"
         android:id="@+id/etvName"
         android:background="@drawable/edittext_design"
         android:padding="10dp"/>
@@ -59,7 +59,7 @@
         android:layout_marginStart="24dp"
         android:layout_marginEnd="24dp"
         android:layout_marginBottom="16dp"
-        android:text="Enter Chat"
+        android:text="@string/enter_chat"
         android:textColor="#ffffff"
         android:background="@drawable/button_design"
         android:id="@+id/btnEnterChat" />
@@ -69,7 +69,7 @@
         android:layout_height="wrap_content"
         android:layout_marginStart="16dp"
         android:layout_gravity="center"
-        android:text="Encrypting method"
+        android:text="@string/encrypting_method"
         android:textStyle="bold"
         android:textSize="16sp"
         android:textColor="@color/white"
@@ -88,14 +88,14 @@
             android:textColor="#ffffff"
             android:layout_height="wrap_content"
             android:layout_weight="0.5"
-            android:text="RSA"/>
+            android:text="@string/rsa"/>
 
         <RadioButton android:id="@+id/radElgamal"
             android:layout_width="0dp"
             android:textColor="#ffffff"
             android:layout_height="wrap_content"
             android:layout_weight="0.5"
-            android:text="ElGamel"/>
+            android:text="@string/elgamel"/>
 
     </RadioGroup>
 
@@ -112,7 +112,7 @@
             android:layout_marginStart="16dp"
             android:layout_marginEnd="16dp"
             android:layout_marginBottom="4dp"
-            android:hint="First prime factor"
+            android:hint="@string/first_prime_factor"
             android:id="@+id/etvFirstPrime"
             android:background="@drawable/edittext_design"
             android:padding="10dp"/>
@@ -123,7 +123,7 @@
             android:layout_marginStart="16dp"
             android:layout_marginEnd="16dp"
             android:layout_marginBottom="4dp"
-            android:hint="Second prime factor"
+            android:hint="@string/second_prime_factor"
             android:id="@+id/etvSecondPrime"
             android:background="@drawable/edittext_design"
             android:padding="10dp"/>
@@ -142,7 +142,7 @@
             android:layout_marginStart="16dp"
             android:layout_marginEnd="16dp"
             android:layout_marginBottom="4dp"
-            android:hint="Prime P"
+            android:hint="@string/prime_p"
             android:id="@+id/etvPrimeP"
             android:background="@drawable/edittext_design"
             android:padding="10dp"/>
@@ -153,7 +153,7 @@
             android:layout_marginStart="16dp"
             android:layout_marginEnd="16dp"
             android:layout_marginBottom="4dp"
-            android:hint="Alpha"
+            android:hint="@string/alpha"
             android:id="@+id/etvAlpha"
             android:background="@drawable/edittext_design"
             android:padding="10dp"/>
@@ -164,7 +164,7 @@
             android:layout_marginStart="16dp"
             android:layout_marginEnd="16dp"
             android:layout_marginBottom="4dp"
-            android:hint="Factor G"
+            android:hint="@string/factor_g"
             android:id="@+id/etvFactorG"
             android:background="@drawable/edittext_design"
             android:padding="10dp"/>

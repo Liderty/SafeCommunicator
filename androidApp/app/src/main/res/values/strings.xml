@@ -9,4 +9,22 @@
 
     <string name="hello_first_fragment">Hello first fragment</string>
     <string name="hello_second_fragment">Hello second fragment. Arg: %1$s</string>
+    <string name="connecting_to_the_server">Connecting to the Server...</string>
+    <string name="encrypting">Encrypting</string>
+    <string name="username">Username</string>
+    <string name="message">Message...</string>
+    <string name="send">Send</string>
+    <string name="enter_server_ip_adress">Enter Server IP adress...</string>
+    <string name="ip_adress">IP adress</string>
+    <string name="chat_name">Chat name</string>
+    <string name="enter_your_name">Enter your name</string>
+    <string name="enter_chat">Enter Chat</string>
+    <string name="encrypting_method">Encrypting method</string>
+    <string name="rsa">RSA</string>
+    <string name="elgamel">ElGamel</string>
+    <string name="first_prime_factor">First prime factor</string>
+    <string name="second_prime_factor">Second prime factor</string>
+    <string name="prime_p">Prime P</string>
+    <string name="alpha">Alpha</string>
+    <string name="factor_g">Factor G</string>
 </resources>
